@@ -38,6 +38,8 @@ othergrp:x:6666:
 	unmapped := &idtools.IdentityMapping{}
 
 	contextDir, cleanup := createTestTempDir(t, "", "builder-chown-parse-test")
+
+	os.Setenv("unicorn_variable","unicorn")
 	defer cleanup()
 
 	if err := os.Mkdir(filepath.Join(contextDir, "etc"), 0755); err != nil {
@@ -109,6 +111,22 @@ othergrp:x:6666:
 			builder:   &Builder{options: &types.ImageBuildOptions{Platform: "linux"}},
 			name:      "UserOnlyWithMap",
 			chownStr:  "unicorn",
+			idMapping: remapped,
+			state:     &dispatchState{},
+			expected:  idtools.Identity{UID: 101001, GID: 101002},
+		},
+		{
+			builder:   &Builder{options: &types.ImageBuildOptions{Platform: "linux"}},
+			name:      "EnvUser",
+			chownStr:  "${unicorn_variable}",
+			idMapping: remapped,
+			state:     &dispatchState{},
+			expected:  idtools.Identity{UID: 101001, GID: 101002},
+		},
+		{
+			builder:   &Builder{options: &types.ImageBuildOptions{Platform: "linux"}},
+			name:      "EnvUser",
+			chownStr:  "${unicorn_variable}:${unicorn_variable}",
 			idMapping: remapped,
 			state:     &dispatchState{},
 			expected:  idtools.Identity{UID: 101001, GID: 101002},

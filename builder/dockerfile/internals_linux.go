@@ -86,3 +86,10 @@ func lookupGroup(groupStr, filepath string) (int, error) {
 	}
 	return groups[0].Gid, nil
 }
+
+func translateEnvironmentVariable(token string)(string){
+	//Translate incoming tokens into actual names
+	if (strings.HasPrefix(token,'${') && strings.HasPrefix(token,'}'))
+		return os.Getenv(strings.Replace(strings.Replace(token, '${'), '}'));
+	return token;
+}

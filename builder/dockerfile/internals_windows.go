@@ -27,6 +27,8 @@ func parseChownFlag(builder *Builder, state *dispatchState, chown, ctrRootPath s
 func getAccountIdentity(builder *Builder, accountName string, ctrRootPath string, state *dispatchState) (idtools.Identity, error) {
 	// If this is potentially a string SID then attempt to convert it to verify
 	// this, otherwise continue looking for the account.
+
+	accountName = translateEnvironmentVariable(accountName);
 	if strings.HasPrefix(accountName, "S-") || strings.HasPrefix(accountName, "s-") {
 		sid, err := windows.StringToSid(accountName)
 
@@ -117,4 +119,11 @@ func lookupNTAccount(builder *Builder, accountName string, state *dispatchState)
 	accountSid := stdout.String()
 
 	return idtools.Identity{SID: accountSid}, nil
+}
+
+func translateEnvironmentVariable(token string)(string){
+	//Translate incoming tokens into actual names
+	if (strings.HasPrefix(token,'${') && strings.HasPrefix(token,'}'))
+		return os.Getenv(strings.Replace(strings.Replace(token, '${'), '}'));
+	return token;
 }
